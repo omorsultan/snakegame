@@ -7,7 +7,7 @@
 
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
-const int TILE_SIZE = 20;
+const int TILE_SIZE = 15;
 int score = 0;
 int timer = 0;
 int bonusFoodTimer = 0;
@@ -25,6 +25,7 @@ public:
     void move();
     void render(SDL_Renderer *renderer);
     bool checkCollision();
+    std::vector<SDL_Point> recentPositions;
     void spawnFood();
     void drawWall();
 
@@ -44,7 +45,7 @@ Snake::Snake()
     body.push_back(body1);
     SDL_Rect body2 = {head.x, head.y, TILE_SIZE, TILE_SIZE};
     body.push_back(body2);
-    direction = 3; // Start moving to the right
+    direction =3; // Start moving to the right
     spawnFood();
     bonusFoodActive = false;
 }
@@ -233,51 +234,74 @@ bool Snake::checkCollision()
     return false;
 }
 
+bool operator==(const SDL_Point& p1, const SDL_Point& p2)
+{
+    return p1.x == p2.x && p1.y == p2.y;
+}
+
 void Snake::spawnFood()
 {
+    static std::random_device rd; // Seed for random number generator
+    static std::mt19937 gen(rd()); // Mersenne Twister RNG
+    static std::uniform_int_distribution<> disX(0, (SCREEN_WIDTH / TILE_SIZE) - 1);
+    static std::uniform_int_distribution<> disY(0, ((SCREEN_HEIGHT - TILE_SIZE * 4) / TILE_SIZE) - 1);
+
     SDL_Rect wall1 = {360, 240, 20, 240};
     SDL_Rect wall2 = {720, 240, 20, 240};
     SDL_Rect wall3 = {480, 240, 120, 20};
     SDL_Rect wall4 = {480, 470, 120, 20};
     SDL_Rect wall6 = {0, 55, SCREEN_WIDTH, TILE_SIZE / 4};
+
+    SDL_Point foodPosition;
+
     do
     {
-        food.x = rand() % (SCREEN_WIDTH / TILE_SIZE) * TILE_SIZE;
-        food.y = rand() % ((SCREEN_HEIGHT - TILE_SIZE * 4) / TILE_SIZE) * TILE_SIZE;
-    } while ((food.x >= wall1.x && food.x < wall1.x + wall1.w && food.y >= wall1.y && food.y < wall1.y + wall1.h) ||
-             (food.x >= wall2.x && food.x < wall2.x + wall2.w && food.y >= wall2.y && food.y < wall2.y + wall2.h) ||
-             (food.x >= wall3.x && food.x < wall3.x + wall3.w && food.y >= wall3.y && food.y < wall3.y + wall3.h) ||
-             (food.x >= wall4.x && food.x < wall4.x + wall4.w && food.y >= wall4.y && food.y < wall4.y + wall4.h) ||
-             //(food.x >= wall5.x && food.x < wall5.x + wall5.w && food.y >= wall5.y && food.y < wall5.y + wall5.h) ||
-             (food.x >= 0 && food.x < SCREEN_WIDTH && food.y >= 0 && food.y < 60) ||
-             std::any_of(body.begin(), body.end(), [this](const SDL_Rect &segment)
-                         { return food.x == segment.x && food.y == segment.y; }));
+        foodPosition.x = disX(gen) * TILE_SIZE;
+        foodPosition.y = disY(gen) * TILE_SIZE;
+    } while ((foodPosition.x >= wall1.x && foodPosition.x < wall1.x + wall1.w && foodPosition.y >= wall1.y && foodPosition.y < wall1.y + wall1.h) ||
+             (foodPosition.x >= wall2.x && foodPosition.x < wall2.x + wall2.w && foodPosition.y >= wall2.y && foodPosition.y < wall2.y + wall2.h) ||
+             (foodPosition.x >= wall3.x && foodPosition.x < wall3.x + wall3.w && foodPosition.y >= wall3.y && foodPosition.y < wall3.y + wall3.h) ||
+             (foodPosition.x >= wall4.x && foodPosition.x < wall4.x + wall4.w && foodPosition.y >= wall4.y && foodPosition.y < wall4.y + wall4.h) ||
+             (foodPosition.x >= 0 && foodPosition.x < SCREEN_WIDTH && foodPosition.y >= 0 && foodPosition.y < 60) ||
+             std::any_of(body.begin(), body.end(), [foodPosition](const SDL_Rect &segment)
+                         { return foodPosition.x == segment.x && foodPosition.y == segment.y; }) ||
+             std::find(recentPositions.begin(), recentPositions.end(), foodPosition) != recentPositions.end());
 
+    // Update food position
+    food.x = foodPosition.x;
+    food.y = foodPosition.y;
     food.w = TILE_SIZE;
     food.h = TILE_SIZE;
 
-    if (score % 7 == 0)
+    // Add to recent positions to avoid repeats
+    recentPositions.push_back(foodPosition);
+    if (recentPositions.size() > 5) // Limit recent positions to last 5
+        recentPositions.erase(recentPositions.begin());
+     if (score % 7 == 0)
     {
         bonusFoodActive = true;
         bonusFoodTimer = SDL_GetTicks() + 7000;
 
+        SDL_Point bonusFoodPosition;
+
         do
         {
-            bonusFood.x = rand() % (SCREEN_WIDTH / TILE_SIZE) * TILE_SIZE;
-            bonusFood.y = rand() % ((SCREEN_HEIGHT - TILE_SIZE * 4) / TILE_SIZE) * TILE_SIZE;
-        } while ((bonusFood.x >= wall1.x && bonusFood.x < wall1.x + wall1.w && bonusFood.y >= wall1.y && bonusFood.y < wall1.y + wall1.h) ||
-                 (bonusFood.x >= wall2.x && bonusFood.x < wall2.x + wall2.w && bonusFood.y >= wall2.y && bonusFood.y < wall2.y + wall2.h) ||
-                 (bonusFood.x >= wall3.x && bonusFood.x < wall3.x + wall3.w && bonusFood.y >= wall3.y && bonusFood.y < wall3.y + wall3.h) ||
-                 (bonusFood.x >= wall4.x && bonusFood.x < wall4.x + wall4.w && bonusFood.y >= wall4.y && bonusFood.y < wall4.y + wall4.h) ||
-                 (bonusFood.x >= 0 && bonusFood.x < SCREEN_WIDTH && bonusFood.y >= 0 && bonusFood.y < 60) ||
-                 std::any_of(body.begin(), body.end(), [this](const SDL_Rect &segment)
-                             { return bonusFood.x == segment.x && bonusFood.y == segment.y; }));
+            bonusFoodPosition.x = disX(gen) * TILE_SIZE;
+            bonusFoodPosition.y = disY(gen) * TILE_SIZE;
+        } while ((bonusFoodPosition.x >= wall1.x && bonusFoodPosition.x < wall1.x + wall1.w && bonusFoodPosition.y >= wall1.y && bonusFoodPosition.y < wall1.y + wall1.h) ||
+                 (bonusFoodPosition.x >= wall2.x && bonusFoodPosition.x < wall2.x + wall2.w && bonusFoodPosition.y >= wall2.y && bonusFoodPosition.y < wall2.y + wall2.h) ||
+                 (bonusFoodPosition.x >= wall3.x && bonusFoodPosition.x < wall3.x + wall3.w && bonusFoodPosition.y >= wall3.y && bonusFoodPosition.y < wall3.y + wall3.h) ||
+                 (bonusFoodPosition.x >= wall4.x && bonusFoodPosition.x < wall4.x + wall4.w && bonusFoodPosition.y >= wall4.y && bonusFoodPosition.y < wall4.y + wall4.h) ||
+                 (bonusFoodPosition.x >= 0 && bonusFoodPosition.x < SCREEN_WIDTH && bonusFoodPosition.y >= 0 && bonusFoodPosition.y < 60) ||
+                 std::any_of(body.begin(), body.end(), [bonusFoodPosition](const SDL_Rect &segment)
+                             { return bonusFoodPosition.x == segment.x && bonusFoodPosition.y == segment.y; }));
 
+        bonusFood.x = bonusFoodPosition.x;
+        bonusFood.y = bonusFoodPosition.y;
         bonusFood.w = TILE_SIZE * 2;
         bonusFood.h = TILE_SIZE * 2;
     }
 }
-
 void renderScore(SDL_Renderer *renderer, TTF_Font *font, int score)
 {
     SDL_Color fontColor = {255, 255, 102, 255};
