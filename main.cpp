@@ -7,7 +7,7 @@
 
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
-const int TILE_SIZE = 15;
+const int TILE_SIZE = 20;
 int score = 0;
 int timer = 0;
 int bonusFoodTimer = 0;
@@ -39,7 +39,7 @@ private:
 
 Snake::Snake()
 {
-    SDL_Rect head = {0, 60, TILE_SIZE, TILE_SIZE};
+    SDL_Rect head = {1080/2, 720/2, TILE_SIZE, TILE_SIZE};
     body.push_back(head);
     SDL_Rect body1 = {head.x, head.y, TILE_SIZE, TILE_SIZE};
     body.push_back(body1);
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
     bgm = Mix_LoadMUS("back.mp3");
     Mix_PlayMusic(bgm, -1);
 
-    eatSound = Mix_LoadWAV("eat.mp3");
+    eatSound = Mix_LoadWAV("eat1.mp3");
     if (!eatSound)
     {
         std::cerr << "Failed to load eat sound: " << Mix_GetError() << std::endl;
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
     SDL_Texture *backgroundImageTexture = SDL_CreateTextureFromSurface(renderer, backgroundImageSurface);
 
     // Load font
-    TTF_Font *font = TTF_OpenFont("arial.ttf", 50);
+    TTF_Font *font = TTF_OpenFont("Atop.ttf", 30);
     if (!font)
     {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
