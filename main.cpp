@@ -263,8 +263,8 @@ static std::uniform_int_distribution<> disY(80 / TILE_SIZE, 620 / TILE_SIZE - 1)
 
     SDL_Rect wall1 = {SCREEN_WIDTH/3+200, SCREEN_HEIGHT/3-100, 20, 340};
     SDL_Rect wall2 = {SCREEN_HEIGHT/3+160, SCREEN_WIDTH/3-60, 340, 20};
-    SDL_Rect wall3 = {100, 150, 20, 380};
-    SDL_Rect wall4 = {1060-100, 150, 20 ,380};
+    SDL_Rect wall3 = {100, 160, 20, 380};
+    SDL_Rect wall4 = {1060-100, 160, 20 ,380};
     SDL_Rect wall6 = {0, 55, SCREEN_WIDTH, TILE_SIZE / 4};
 
     SDL_Point foodPosition;
@@ -292,7 +292,7 @@ static std::uniform_int_distribution<> disY(80 / TILE_SIZE, 620 / TILE_SIZE - 1)
     recentPositions.push_back(foodPosition);
     if (recentPositions.size() > 5) // Limit recent positions to last 5
         recentPositions.erase(recentPositions.begin());
-     if (score % 2 == 0)
+     if (score % 4 == 0)
     {
         bonusFoodActive = true;
         bonusFoodTimer = SDL_GetTicks() + 70000;
@@ -321,27 +321,17 @@ void renderScore(SDL_Renderer *renderer, TTF_Font *font, int score)
 {
     SDL_Color fontColor = {255, 255, 102, 255};
     SDL_Surface *surface1 = TTF_RenderText_Solid(font, ("Score: " + std::to_string(score)).c_str(), fontColor);
-    // SDL_Surface *surface2 = TTF_RenderText_Solid(font, ("Timer: " + std::to_string(timer)).c_str(), fontColor);
     if (surface1)
     {
         SDL_Texture *text1 = SDL_CreateTextureFromSurface(renderer, surface1);
-        // SDL_Texture *text2 = SDL_CreateTextureFromSurface(renderer, surface2);
-
         if (text1)
         {
-            SDL_Rect textRect = {5, 5, 200, 50};
+            SDL_Rect textRect = {800, 720-4*TILE_SIZE, 7*TILE_SIZE, 4*TILE_SIZE};
             SDL_RenderCopy(renderer, text1, nullptr, &textRect);
             SDL_DestroyTexture(text1);
         }
-        /*if (text2)
-        {
-            SDL_Rect textRect = {875, 5, 200, 50};
-            SDL_RenderCopy(renderer, text2, nullptr, &textRect);
-            SDL_DestroyTexture(text2);
-        }
-        SDL_FreeSurface(surface1);
-        SDL_FreeSurface(surface2);
-        }*/}
+    }
+        
 }
 
 void displayGameOver(SDL_Renderer *renderer, TTF_Font *font, int finalScore)
@@ -362,7 +352,7 @@ void displayGameOver(SDL_Renderer *renderer, TTF_Font *font, int finalScore)
             textRect.x = SCREEN_WIDTH / 4;
             textRect.y = SCREEN_HEIGHT / 3;
             textRect.w = SCREEN_WIDTH / 2;
-            textRect.h = SCREEN_HEIGHT / 3;
+            textRect.h = SCREEN_HEIGHT / 5;
 
             SDL_RenderCopy(renderer, text, nullptr, &textRect);
 
@@ -384,22 +374,22 @@ int main(int argc, char *argv[])
 
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
-    Mix_Init(MIX_INIT_MP3);
+   // Mix_Init(MIX_INIT_MP3);
     IMG_Init(IMG_INIT_PNG); // Initialize SDL2_image for PNG images
 
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+  //  Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
-    bgm = Mix_LoadMUS("back.mp3");
-    Mix_PlayMusic(bgm, -1);
+  //   bgm = Mix_LoadMUS("back.mp3");
+   // Mix_PlayMusic(bgm, -1);
 
-    eatSound = Mix_LoadWAV("eat1.mp3");
-    if (!eatSound)
-    {
-        std::cerr << "Failed to load eat sound: " << Mix_GetError() << std::endl;
-        Mix_Quit();
-        SDL_Quit();
-        return 1;
-    }
+    // eatSound = Mix_LoadWAV("eat1.mp3");
+    // if (!eatSound)
+    // {
+    //     std::cerr << "Failed to load eat sound: " << Mix_GetError() << std::endl;
+    //     Mix_Quit();
+    //     SDL_Quit();
+    //     return 1;
+    // }
 
     window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
