@@ -1,0 +1,9 @@
+ if (newHead.x < 0)
+    {
+        newHead.x = SCREEN_WIDTH - TILE_SIZE;
+    }
+    else if (newHead.x >= SCREEN_WIDTH)
+    {
+        newHead.x = 0;
+    }
+// for left to right moving

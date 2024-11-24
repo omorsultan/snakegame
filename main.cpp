@@ -39,13 +39,13 @@ private:
 
 Snake::Snake()
 {
-    SDL_Rect head = {1080/2, 720/2, TILE_SIZE, TILE_SIZE};
+    SDL_Rect head = {0, 60, TILE_SIZE, TILE_SIZE};//start position
     body.push_back(head);
     SDL_Rect body1 = {head.x, head.y, TILE_SIZE, TILE_SIZE};
     body.push_back(body1);
     SDL_Rect body2 = {head.x, head.y, TILE_SIZE, TILE_SIZE};
     body.push_back(body2);
-    direction =3; // Start moving to the right
+    direction =3; //  right
     spawnFood();
     bonusFoodActive = false;
 }
@@ -60,34 +60,36 @@ void Snake::handleInput(SDL_Event &e)
             if (direction != 1)
             {
                 direction = 0;
-                if (pause)
-                    pause = !pause;
+                if (pause) pause = !pause;
+            }
+            break;
+         case SDLK_KP_8:    
+            if (direction != 1)
+            {
+                direction = 0; 
+                if (pause) pause = !pause; 
             }
             break;
         case SDLK_DOWN:
             if (direction != 0)
             {
                 direction = 1;
-                if (pause)
-                    pause = !pause;
+                if (pause) pause = !pause;
             }
             break;
         case SDLK_LEFT:
             if (direction != 3)
             {
                 direction = 2;
-                if (pause)
-                    pause = !pause;
+                if (pause)   pause = !pause;
             }
             break;
         case SDLK_RIGHT:
             if (direction != 2)
             {
                 direction = 3;
-                if (pause)
-                    pause = !pause;
+                if (pause) pause = !pause;
             }
-
             break;
         case SDLK_SPACE:
             pause = !pause;
@@ -116,14 +118,14 @@ void Snake::move()
         break;
     }
 
-    if (newHead.x < 0)
-    {
-        newHead.x = SCREEN_WIDTH - TILE_SIZE;
-    }
-    else if (newHead.x >= SCREEN_WIDTH)
-    {
-        newHead.x = 0;
-    }
+    // if (newHead.x < 0)
+    // {
+    //     newHead.x = SCREEN_WIDTH - TILE_SIZE;
+    // }
+    // else if (newHead.x >= SCREEN_WIDTH)
+    // {
+    //     newHead.x = 0;
+    // }
 
     body.insert(body.begin(), newHead);
 
@@ -163,14 +165,14 @@ void Snake::move()
 void Snake::render(SDL_Renderer *renderer)
 {
 
-    SDL_SetRenderDrawColor(renderer, 255, 128, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 173, 216, 230, 255);
     for (int i = 1; i < body.size(); ++i)
     {
 
         SDL_RenderFillRect(renderer, &body[i]);
     }
 
-    SDL_SetRenderDrawColor(renderer, 255, 178, 102, 255);
+    SDL_SetRenderDrawColor(renderer,80, 120, 200, 255);
     SDL_RenderFillRect(renderer, &body[0]);
 
     SDL_SetRenderDrawColor(renderer, 255, 178, 102, 255);
@@ -183,11 +185,11 @@ void Snake::render(SDL_Renderer *renderer)
     }
 
     // draw walls
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_Rect wall1 = {360, 240, 20, 240};
-    SDL_Rect wall2 = {720, 240, 20, 240};
-    SDL_Rect wall3 = {480, 240, 120, 20};
-    SDL_Rect wall4 = {480, 470, 120, 20};
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_Rect wall1 = {SCREEN_WIDTH/3+200, SCREEN_HEIGHT/3-100, 20, 340};
+    SDL_Rect wall2 = {SCREEN_HEIGHT/3+160, SCREEN_WIDTH/3-60, 340, 20};
+    SDL_Rect wall3 = {100, 150, 20, 380};
+    SDL_Rect wall4 = {1060-100, 150, 20 ,380};
 
     SDL_RenderFillRect(renderer, &wall1);
     SDL_RenderFillRect(renderer, &wall2);
@@ -195,7 +197,8 @@ void Snake::render(SDL_Renderer *renderer)
     SDL_RenderFillRect(renderer, &wall4);
 
     SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
-    SDL_Rect wall6 = {0, 58, SCREEN_WIDTH, TILE_SIZE / 10};
+    SDL_Rect wall6 = {0, 720-4*TILE_SIZE, SCREEN_WIDTH, TILE_SIZE/10};
+    // SDL_Rect wall7 ={}
     SDL_RenderFillRect(renderer, &wall6);
 }
 
@@ -211,16 +214,21 @@ bool Snake::checkCollision()
         }
     }
 
-    if (head.y < 0 || head.y >= SCREEN_HEIGHT)
+    if (head.y < 0 || head.y >= SCREEN_HEIGHT-4*TILE_SIZE)
+    {
+        return true;
+    }
+    if (head.x < 15 || head.x >= SCREEN_WIDTH-15)
     {
         return true;
     }
 
-    SDL_Rect wall1 = {360, 240, 20, 240};
-    SDL_Rect wall2 = {720, 240, 20, 240};
-    SDL_Rect wall3 = {480, 240, 120, 20};
-    SDL_Rect wall4 = {480, 470, 120, 20};
-    SDL_Rect wall6 = {0, 55, SCREEN_WIDTH, TILE_SIZE / 4};
+    SDL_Rect wall1 = {SCREEN_WIDTH/3+200, SCREEN_HEIGHT/3-100, 20, 340};
+    SDL_Rect wall2 = {SCREEN_HEIGHT/3+160, SCREEN_WIDTH/3-60, 340, 20};
+    SDL_Rect wall3 = {100, 150, 20, 380};
+    SDL_Rect wall4 = {1060-100, 150, 20 ,380};
+
+    SDL_Rect wall6 = {0, 10, SCREEN_WIDTH, TILE_SIZE / 4};
 
     if ((head.x < wall1.x + wall1.w && head.x + head.w > wall1.x && head.y < wall1.y + wall1.h && head.y + head.h > wall1.y) ||
         (head.x < wall2.x + wall2.w && head.x + head.w > wall2.x && head.y < wall2.y + wall2.h && head.y + head.h > wall2.y) ||
@@ -277,10 +285,10 @@ void Snake::spawnFood()
     recentPositions.push_back(foodPosition);
     if (recentPositions.size() > 5) // Limit recent positions to last 5
         recentPositions.erase(recentPositions.begin());
-     if (score % 7 == 0)
+     if (score % 2 == 0)
     {
         bonusFoodActive = true;
-        bonusFoodTimer = SDL_GetTicks() + 7000;
+        bonusFoodTimer = SDL_GetTicks() + 700;
 
         SDL_Point bonusFoodPosition;
 
@@ -331,7 +339,7 @@ void renderScore(SDL_Renderer *renderer, TTF_Font *font, int score)
 
 void displayGameOver(SDL_Renderer *renderer, TTF_Font *font, int finalScore)
 {
-    SDL_SetRenderDrawColor(renderer, 204, 0, 153, 255);
+    SDL_SetRenderDrawColor(renderer, 204, 200, 153, 255);
     SDL_RenderClear(renderer);
 
     SDL_Color textColor = {255, 255, 255, 255};
