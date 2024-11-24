@@ -254,10 +254,10 @@ void Snake::spawnFood()
     static std::uniform_int_distribution<> disX(0, (SCREEN_WIDTH / TILE_SIZE) - 1);
     static std::uniform_int_distribution<> disY(0, ((SCREEN_HEIGHT - TILE_SIZE * 4) / TILE_SIZE) - 1);
 
-    SDL_Rect wall1 = {360, 240, 20, 240};
-    SDL_Rect wall2 = {720, 240, 20, 240};
-    SDL_Rect wall3 = {480, 240, 120, 20};
-    SDL_Rect wall4 = {480, 470, 120, 20};
+    SDL_Rect wall1 = {SCREEN_WIDTH/3+200, SCREEN_HEIGHT/3-100, 20, 340};
+    SDL_Rect wall2 = {SCREEN_HEIGHT/3+160, SCREEN_WIDTH/3-60, 340, 20};
+    SDL_Rect wall3 = {100, 150, 20, 380};
+    SDL_Rect wall4 = {1060-100, 150, 20 ,380};
     SDL_Rect wall6 = {0, 55, SCREEN_WIDTH, TILE_SIZE / 4};
 
     SDL_Point foodPosition;
@@ -270,7 +270,7 @@ void Snake::spawnFood()
              (foodPosition.x >= wall2.x && foodPosition.x < wall2.x + wall2.w && foodPosition.y >= wall2.y && foodPosition.y < wall2.y + wall2.h) ||
              (foodPosition.x >= wall3.x && foodPosition.x < wall3.x + wall3.w && foodPosition.y >= wall3.y && foodPosition.y < wall3.y + wall3.h) ||
              (foodPosition.x >= wall4.x && foodPosition.x < wall4.x + wall4.w && foodPosition.y >= wall4.y && foodPosition.y < wall4.y + wall4.h) ||
-             (foodPosition.x >= 0 && foodPosition.x < SCREEN_WIDTH && foodPosition.y >= 0 && foodPosition.y < 60) ||
+             (foodPosition.x >= 40 && foodPosition.x < SCREEN_WIDTH-40 && foodPosition.y >= 200 && foodPosition.y < 3000) ||
              std::any_of(body.begin(), body.end(), [foodPosition](const SDL_Rect &segment)
                          { return foodPosition.x == segment.x && foodPosition.y == segment.y; }) ||
              std::find(recentPositions.begin(), recentPositions.end(), foodPosition) != recentPositions.end());
@@ -288,7 +288,7 @@ void Snake::spawnFood()
      if (score % 2 == 0)
     {
         bonusFoodActive = true;
-        bonusFoodTimer = SDL_GetTicks() + 700;
+        bonusFoodTimer = SDL_GetTicks() + 70000;
 
         SDL_Point bonusFoodPosition;
 
@@ -306,8 +306,8 @@ void Snake::spawnFood()
 
         bonusFood.x = bonusFoodPosition.x;
         bonusFood.y = bonusFoodPosition.y;
-        bonusFood.w = TILE_SIZE * 2;
-        bonusFood.h = TILE_SIZE * 2;
+        bonusFood.w = TILE_SIZE ;
+        bonusFood.h = TILE_SIZE;
     }
 }
 void renderScore(SDL_Renderer *renderer, TTF_Font *font, int score)
