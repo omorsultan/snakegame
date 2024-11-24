@@ -39,7 +39,7 @@ private:
 
 Snake::Snake()
 {
-    SDL_Rect head = {0, 60, TILE_SIZE, TILE_SIZE};//start position
+    SDL_Rect head = {60, 60, TILE_SIZE, TILE_SIZE};//start position
     body.push_back(head);
     SDL_Rect body1 = {head.x, head.y, TILE_SIZE, TILE_SIZE};
     body.push_back(body1);
@@ -196,10 +196,17 @@ void Snake::render(SDL_Renderer *renderer)
     SDL_RenderFillRect(renderer, &wall3);
     SDL_RenderFillRect(renderer, &wall4);
 
-    SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
-    SDL_Rect wall6 = {0, 720-4*TILE_SIZE, SCREEN_WIDTH, TILE_SIZE/10};
+    SDL_SetRenderDrawColor(renderer, 165, 42, 42, 255);
+    SDL_Rect wall6 = {0, 720-4*TILE_SIZE, SCREEN_WIDTH, TILE_SIZE*4};
+    SDL_Rect wall7={0,0,20,SCREEN_HEIGHT};
+    SDL_Rect wall8={1060,0,20,SCREEN_HEIGHT};
+    SDL_Rect wall9={0,0,SCREEN_WIDTH,20};
     // SDL_Rect wall7 ={}
     SDL_RenderFillRect(renderer, &wall6);
+     SDL_RenderFillRect(renderer, &wall7);
+      SDL_RenderFillRect(renderer, &wall8);
+       SDL_RenderFillRect(renderer, &wall9);
+
 }
 
 bool Snake::checkCollision()
@@ -218,7 +225,7 @@ bool Snake::checkCollision()
     {
         return true;
     }
-    if (head.x < 15 || head.x >= SCREEN_WIDTH-15)
+    if (head.x <  TILE_SIZE || head.x >= SCREEN_WIDTH-TILE_SIZE)
     {
         return true;
     }
@@ -249,10 +256,10 @@ bool operator==(const SDL_Point& p1, const SDL_Point& p2)
 
 void Snake::spawnFood()
 {
-    static std::random_device rd; // Seed for random number generator
-    static std::mt19937 gen(rd()); // Mersenne Twister RNG
-    static std::uniform_int_distribution<> disX(0, (SCREEN_WIDTH / TILE_SIZE) - 1);
-    static std::uniform_int_distribution<> disY(0, ((SCREEN_HEIGHT - TILE_SIZE * 4) / TILE_SIZE) - 1);
+    static std::random_device rd; // random vlaue
+    static std::mt19937 gen(rd());
+   static std::uniform_int_distribution<> disX(80 / TILE_SIZE, 1000 / TILE_SIZE - 1);
+static std::uniform_int_distribution<> disY(80 / TILE_SIZE, 620 / TILE_SIZE - 1);
 
     SDL_Rect wall1 = {SCREEN_WIDTH/3+200, SCREEN_HEIGHT/3-100, 20, 340};
     SDL_Rect wall2 = {SCREEN_HEIGHT/3+160, SCREEN_WIDTH/3-60, 340, 20};
@@ -270,7 +277,7 @@ void Snake::spawnFood()
              (foodPosition.x >= wall2.x && foodPosition.x < wall2.x + wall2.w && foodPosition.y >= wall2.y && foodPosition.y < wall2.y + wall2.h) ||
              (foodPosition.x >= wall3.x && foodPosition.x < wall3.x + wall3.w && foodPosition.y >= wall3.y && foodPosition.y < wall3.y + wall3.h) ||
              (foodPosition.x >= wall4.x && foodPosition.x < wall4.x + wall4.w && foodPosition.y >= wall4.y && foodPosition.y < wall4.y + wall4.h) ||
-             (foodPosition.x >= 40 && foodPosition.x < SCREEN_WIDTH-40 && foodPosition.y >= 200 && foodPosition.y < 3000) ||
+             (foodPosition.x >= 200 && foodPosition.x < SCREEN_WIDTH-200 && foodPosition.y >= 600 && foodPosition.y < 3000) ||
              std::any_of(body.begin(), body.end(), [foodPosition](const SDL_Rect &segment)
                          { return foodPosition.x == segment.x && foodPosition.y == segment.y; }) ||
              std::find(recentPositions.begin(), recentPositions.end(), foodPosition) != recentPositions.end());
